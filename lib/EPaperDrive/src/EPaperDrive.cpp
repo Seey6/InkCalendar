@@ -663,7 +663,7 @@ void EPaperDrive::DrawUnicodeChar(int16_t x, int16_t y, uint8_t width, uint8_t h
     else
         sizeofsinglechar = (height / 8 + 1) * width;
     offset = (code[0] * 0x100 + code[1]) * sizeofsinglechar;
-    Serial.printf("offset:%d",offset);
+    // Serial.printf("offset:%d",offset);
     // Serial.println("code[1]");
     // Serial.println(code[1]);
     //Serial.println("sizeofsinglechar");

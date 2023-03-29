@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "gui.h": "c",
+        "memory": "cpp"
+    }
+}

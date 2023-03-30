@@ -23,4 +23,5 @@ typedef struct weather_t {
 ret network_init(const char* ssid,const char* pswd = nullptr);
 ret network_get_time(signed long long &timestamp);
 ret network_get_weather(unsigned long city_code,weather_t *weather,int day);
+ret network_get_hitokoto(char* buffer);
 #endif

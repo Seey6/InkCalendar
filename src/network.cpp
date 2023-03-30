@@ -6,6 +6,9 @@
 WiFiClient wifi_client;
 HTTPClient http_client; 
 
+WiFiClientSecure wifi_client_secure;
+HTTPClient https_client;
+
 StaticJsonDocument<4096> doc;
 
 ret network_init(const char* ssid,const char* pswd){
@@ -21,6 +24,8 @@ ret network_init(const char* ssid,const char* pswd){
             return RET_TIMEOUT;
         }
     }
+    wifi_client_secure.setInsecure();
+    wifi_client_secure.setBufferSizes(1024,1024);
     debug_print("wifi connect\n");
     return RET_OK;
 }
@@ -56,9 +61,26 @@ ret network_get_weather(unsigned long city_code,weather_t *weather,int day){
             weather[i].wind_level = atoi(doc["results"][0]["daily"][0]["wind_scale"]);
             weather[i].humidity = atoi(doc["results"][0]["daily"][0]["humidity"]);
         }
+        http_client.end();
         return RET_OK;
     }else{
         debug_print("weather api get error:%s\n",http_client.errorToString(http_ret).c_str());
+        http_client.end();
+        return RET_ERROR;
+    }
+}
+
+ret network_get_hitokoto(char* buffer){
+    https_client.begin(wifi_client_secure,"https://v1.hitokoto.cn/?c=d&c=f&c=j&c=l&encode=text&min_length=16&max_length=24");
+    int http_ret = https_client.GET();
+    if(HTTP_CODE_OK==http_ret){
+        strcpy(buffer,https_client.getString().c_str());
+        debug_print("hitokoto:%s\n",buffer);
+        https_client.end();
+        return RET_OK;
+    }else{
+        debug_print("hitokoto api error:%s\n",https_client.errorToString(http_ret).c_str());
+        https_client.end();
         return RET_ERROR;
     }
 }

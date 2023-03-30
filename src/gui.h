@@ -16,6 +16,11 @@ void gui_init(fs::FS* fs,epd_type mode);
 void gui_demo_full();
 void gui_demo_part();
 void gui_draw_text(int x,int y,long number);
-void gui_draw_text(int x,int y,char* text);
+void gui_draw_text(int x,int y,char* text,FONT font = FONT16);
+void gui_draw_calendar(int x,int y,int month,int day);
+void gui_draw_ui();
+void gui_draw_time(int x,int y,int hour,int min);
+void gui_draw_battery(int x,int y,int battery);
+void gui_draw_hitokoto(int x,int y,char* text);
 
 #endif

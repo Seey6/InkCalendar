@@ -17,7 +17,7 @@ void setup() {
   char buf[100];
   int battery = 0;
   uint32_t init_flag = 0;
-  int16_t sleep_time = 0;
+  int32_t sleep_time = 0;
   uint32_t time_buf[4];
   time_buf[3] = system_get_time();
   time_buf[2] = time_buf[3];
@@ -58,7 +58,7 @@ void setup() {
     }
     ts+=((time_buf[1]-time_buf[0])/1e6);
     device_save_time(ts);
-    debug_print("sleep time:%lld\n",sleep_time);
+    debug_print("sleep time:%d\n",sleep_time);
     debug_print("timestamp before sleep:%lld\n",ts);
     ESP.deepSleep(sleep_time*1e6);
   }else{
@@ -93,12 +93,20 @@ void setup() {
         time_struct = gmtime((time_t*)&ts);
         gui_draw_time(4,0,time_struct->tm_hour+8,time_struct->tm_min);
       }
+      time_buf[0] = system_get_time();
+      sleep_time = 60e6 - (ts%60)*1e6 - ((time_buf[0]-time_buf[3]));
+      while(sleep_time<=0){
+        sleep_time+=60e6;
+      }
+      ts+=((time_buf[0]-time_buf[3])/1e6);
+    }else{
+      time_buf[1] = system_get_time();
+      ts += ((time_buf[1]-time_buf[3])/1e6);
+      sleep_time = 60e6 - (time_buf[1]-time_buf[3]);
     }
-
-    time_buf[1] = system_get_time();
-    ts += ((time_buf[1]-time_buf[3])/1e6);
     device_save_time(ts);
-    ESP.deepSleep(60e6-(time_buf[1]-time_buf[2]));
+    ESP.deepSleep(sleep_time);
+
   }
 
 }

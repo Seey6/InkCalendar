@@ -13,6 +13,7 @@ void setup() {
   signed long long ts = 0;
   struct tm* time_struct = 0;
   struct weather_t weather;
+  struct weather_now_t weather_now;
   char buf[100];
   int battery = 0;
 
@@ -33,6 +34,9 @@ void setup() {
   }
   if(RET_OK == network_get_hitokoto(buf)){
     gui_draw_hitokoto(299-20,0,buf);
+  }
+  if(RET_OK==network_get_weather_now(0,weather_now)){
+    gui_draw_weather_now(8,216,weather_now);
   }
   
   // delay(5000);

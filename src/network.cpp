@@ -36,7 +36,7 @@ ret network_get_time(signed long long &timestamp){
         timestamp = atoi(http_client.getString().c_str()+15);
     }
     http_client.end();
-    debug_print("timestamp:%ld\n",timestamp);
+    debug_print("timestamp:%lld\n",timestamp);
     return timestamp!=0?RET_OK:RET_ERROR;
 }
 
@@ -49,7 +49,7 @@ ret network_get_weather(unsigned long city_code,weather_t *weather,int day){
             debug_print("weather api json error\n");
             return RET_ERROR;
         }
-        for (size_t i = 0; i < (day>3?3:day); i++)
+        for (int i = 0; i < (day>3?3:day); i++)
         {
             strlcpy(weather[i].weather_day,doc["results"][0]["daily"][0]["text_day"],sizeof(weather[i].weather_day));
             strlcpy(weather[i].weather_night,doc["results"][0]["daily"][0]["text_night"],sizeof(weather[i].weather_night));
@@ -71,7 +71,7 @@ ret network_get_weather(unsigned long city_code,weather_t *weather,int day){
 }
 
 ret network_get_hitokoto(char* buffer){
-    https_client.begin(wifi_client_secure,"https://v1.hitokoto.cn/?c=d&c=f&c=j&c=l&encode=text&min_length=16&max_length=24");
+    https_client.begin(wifi_client_secure,"https://v1.hitokoto.cn/?c=d&c=f&c=j&encode=text&min_length=16&max_length=24");
     int http_ret = https_client.GET();
     if(HTTP_CODE_OK==http_ret){
         strcpy(buffer,https_client.getString().c_str());
@@ -81,6 +81,60 @@ ret network_get_hitokoto(char* buffer){
     }else{
         debug_print("hitokoto api error:%s\n",https_client.errorToString(http_ret).c_str());
         https_client.end();
+        return RET_ERROR;
+    }
+}
+skycon network_weather_skycon(char* skycon){
+    if(!strcmp(skycon,"CLEAR_DAY"))return CLEAR_DAY;
+    if(!strcmp(skycon,"CLEAR_NIGHT"))return CLEAR_NIGHT;
+    if(!strcmp(skycon,"PARTLY_CLOUDY_DAY"))return PARTLY_CLOUDY_DAY;
+    if(!strcmp(skycon,"PARTLY_CLOUDY_NIGHT"))return PARTLY_CLOUDY_NIGHT;
+    if(!strcmp(skycon,"CLOUDY"))return CLOUDY;
+    if(!strcmp(skycon,"LIGHT_HAZE"))return LIGHT_HAZE;
+    if(!strcmp(skycon,"MODERATE_HAZE"))return MODERATE_HAZE;
+    if(!strcmp(skycon,"HEAVY_HAZE"))return HEAVY_HAZE;
+    if(!strcmp(skycon,"LIGHT_RAIN"))return LIGHT_RAIN;
+    if(!strcmp(skycon,"MODERATE_RAIN"))return MODERATE_RAIN;
+    if(!strcmp(skycon,"HEAVY_RAIN"))return HEAVY_RAIN;
+    if(!strcmp(skycon,"STORM_RAIN"))return STORM_RAIN;
+    if(!strcmp(skycon,"FOG"))return FOG;
+    if(!strcmp(skycon,"LIGHT_SNOW"))return LIGHT_SNOW;
+    if(!strcmp(skycon,"MODERATE_SNOW"))return MODERATE_SNOW;
+    if(!strcmp(skycon,"HEAVY_SNOW"))return HEAVY_SNOW;
+    if(!strcmp(skycon,"STORM_SNOW"))return STORM_SNOW;
+    if(!strcmp(skycon,"DUST"))return DUST;
+    if(!strcmp(skycon,"SAND"))return SAND;
+    if(!strcmp(skycon,"WIND"))return WIND;
+    return CLEAR_DAY;
+}
+ret network_get_weather_now(char* pos,weather_now_t& weather_now){
+    char buf[32];
+    http_client.begin(wifi_client,"http://api.caiyunapp.com/v2.6/TAkhjf8d1nlSlspN/117.1735,39.1107/realtime");
+    int ret_http = http_client.GET();
+    if(HTTP_CODE_OK==ret_http){
+        DeserializationError error = deserializeJson(doc, http_client.getString());
+        if (error){
+            debug_print("weather_now api json error\n");
+            return RET_ERROR;
+        }
+        if(strcmp(doc["status"],"ok")!=0){
+            debug_print("weather_now api code error\n");
+            return RET_ERROR;
+        }
+        strlcpy(buf,doc["result"]["realtime"]["skycon"],sizeof(buf));
+        weather_now.weather = network_weather_skycon(buf);
+        weather_now.humidity = doc["result"]["realtime"]["humidity"].as<float>()*100;
+        weather_now.temp = doc["result"]["realtime"]["temperature"].as<float>();
+        weather_now.wind_degree = doc["result"]["realtime"]["wind"]["direction"].as<float>();
+        weather_now.wind_speed = doc["result"]["realtime"]["wind"]["speed"].as<float>();
+        weather_now.temp_apparent = doc["result"]["realtime"]["apparent_temperature"].as<float>();
+        strlcpy(weather_now.air_quality,doc["result"]["realtime"]["air_quality"]["description"]["chn"],sizeof(weather_now.air_quality));
+        debug_print("weather_now weather:%d,air_quality:%s,temp:%d,temp_apparent:%d,humidity:%d,wind_speed:%d,wind_degree:%d\n",weather_now.weather,weather_now.air_quality,weather_now.temp,weather_now.temp_apparent,weather_now.humidity,weather_now.wind_speed,weather_now.wind_degree);
+        http_client.end();
+        return RET_OK;
+    }else{
+        debug_print("weather_now api error:%s\n",https_client.errorToString(ret_http).c_str());
+        http_client.end();
         return RET_ERROR;
     }
 }

@@ -1,5 +1,7 @@
 #include "device.h"
 
+uint8_t after_init = 0;
+uint64_t system_init_time = 0;
 
 ret device_get_battery(int &battery_precent){
     int i = 0;
@@ -27,4 +29,25 @@ ret device_get_battery(int &battery_precent){
     }
     debug_print("battery:%f\n",bat);
     return RET_OK;
+}
+
+
+ret device_save_time(signed long long timestamp){
+    return ESP.rtcUserMemoryWrite(1,(uint32*)&timestamp,sizeof(signed long long))?RET_OK:RET_ERROR;
+}
+ret device_get_time(signed long long *timestamp){
+    if(ESP.rtcUserMemoryRead(1,(uint32_t*)timestamp,sizeof(signed long long))){
+        return RET_OK;
+    }else{
+        *timestamp = 0;
+        return RET_ERROR;
+    }
+}
+
+ret device_set_init_finish(){
+    uint32_t buf = 1;
+    return ESP.rtcUserMemoryWrite(0,&buf,4)?RET_OK:RET_ERROR;
+}
+ret device_get_init_finish(uint32_t *flag){
+    return ESP.rtcUserMemoryRead(0,flag,4)?RET_OK:RET_ERROR;
 }

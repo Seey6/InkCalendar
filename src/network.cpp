@@ -31,9 +31,13 @@ ret network_init(const char* ssid,const char* pswd){
 }
 
 ret network_get_time(signed long long &timestamp){
+    uint32_t time_start = system_get_time();
+    uint32_t time_end = 0;
     http_client.begin(wifi_client,"http://tptm.hd.mi.com/gettimestamp");
     if(HTTP_CODE_OK==http_client.GET()){
+        time_end = system_get_time();
         timestamp = atoi(http_client.getString().c_str()+15);
+        timestamp -= ((time_end-time_start)/2/1e6);
     }
     http_client.end();
     debug_print("timestamp:%lld\n",timestamp);

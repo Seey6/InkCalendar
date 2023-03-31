@@ -8,8 +8,7 @@
 
 #include "time.h"
 
-
-void setup() {
+void mode_normal(){
   signed long long ts = 0;
   struct tm* time_struct = 0;
   struct weather_t weather[3];
@@ -33,7 +32,7 @@ void setup() {
       time_buf[0] = system_get_time();
       time_struct = gmtime((time_t*)&ts);
       gui_draw_calendar(80,16,time_struct->tm_mon,time_struct->tm_mday);
-      gui_draw_time(4,0,time_struct->tm_hour+8,time_struct->tm_min);
+      gui_draw_time(4,0,time_struct->tm_hour,time_struct->tm_min);
     }else{
       time_buf[0]=system_get_time();
     }
@@ -67,7 +66,7 @@ void setup() {
     ts-=(ts%60);
     debug_print("timestamp after reboot:%lld\n",ts);
     time_struct = gmtime((time_t*)&ts);
-    gui_draw_time(4,0,time_struct->tm_hour+8,time_struct->tm_min);
+    gui_draw_time(4,0,time_struct->tm_hour,time_struct->tm_min);
     
     if(time_struct->tm_min==0){
       network_init("tjuwlan");
@@ -91,7 +90,7 @@ void setup() {
       if(RET_OK == network_get_time(ts)){
         time_buf[3] = system_get_time();
         time_struct = gmtime((time_t*)&ts);
-        gui_draw_time(4,0,time_struct->tm_hour+8,time_struct->tm_min);
+        gui_draw_time(4,0,time_struct->tm_hour,time_struct->tm_min);
       }
       time_buf[0] = system_get_time();
       sleep_time = 60e6 - (ts%60)*1e6 - ((time_buf[0]-time_buf[3]));
@@ -108,7 +107,10 @@ void setup() {
     ESP.deepSleep(sleep_time);
 
   }
+}
 
+void setup() {
+  mode_normal();
 }
 
 void loop() {

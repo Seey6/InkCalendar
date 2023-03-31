@@ -69,6 +69,15 @@ void setup() {
     time_struct = gmtime((time_t*)&ts);
     gui_draw_time(4,0,time_struct->tm_hour+8,time_struct->tm_min);
     
+    if(time_struct->tm_min==0){
+      network_init("tjuwlan");
+      if(RET_OK == network_get_hitokoto(buf)){
+        gui_draw_hitokoto(299-20,0,buf);
+      }
+      if(RET_OK==network_get_weather_now(0,weather_now)){
+        gui_draw_weather_now(8,216,weather_now);
+      }
+    }
     if(time_struct->tm_hour==0&&time_struct->tm_min==0){
       gui_draw_calendar(80,16,time_struct->tm_mon,time_struct->tm_mday);
       if(RET_OK == network_get_weather(0,weather,3)){
@@ -79,13 +88,6 @@ void setup() {
       }
     }
     if(time_struct->tm_min==0){
-      network_init("tjuwlan");
-      if(RET_OK == network_get_hitokoto(buf)){
-        gui_draw_hitokoto(299-20,0,buf);
-      }
-      if(RET_OK==network_get_weather_now(0,weather_now)){
-        gui_draw_weather_now(8,216,weather_now);
-      }
       if(RET_OK == network_get_time(ts)){
         time_buf[3] = system_get_time();
         time_struct = gmtime((time_t*)&ts);

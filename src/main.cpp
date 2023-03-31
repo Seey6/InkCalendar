@@ -12,7 +12,7 @@
 void setup() {
   signed long long ts = 0;
   struct tm* time_struct = 0;
-  struct weather_t weather;
+  struct weather_t weather[3];
   struct weather_now_t weather_now;
   char buf[100];
   int battery = 0;
@@ -39,15 +39,9 @@ void setup() {
     gui_draw_weather_now(8,216,weather_now);
   }
   
-  // delay(5000);
-  // if(RET_OK == network_get_weather(0,&weather,1)){
-  //   sprintf(buf,"白天天气:%s 夜间天气:%s",weather.weather_day,weather.weather_night);
-  //   gui_draw_text(78,0,buf);
-  //   sprintf(buf,"最高气温:%dC 最低气温:%dC",weather.temp_max,weather.temp_min);
-  //   gui_draw_text(104,0,buf);
-  //   sprintf(buf,"风向:%d %d级",weather.wind_degree,weather.wind_level);
-  //   gui_draw_text(136,0,buf);
-  // }
+  if(RET_OK == network_get_weather(0,weather,3)){
+    gui_draw_weather_day(112,216,weather);
+  }
   debug_print("setup finish\n");
 
 

@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "gui.h": "c",
-        "memory": "cpp"
+        "memory": "cpp",
+        "chrono": "cpp",
+        "random": "cpp",
+        "limits": "cpp"
     }
 }

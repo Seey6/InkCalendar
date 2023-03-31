@@ -132,7 +132,7 @@ void gui_draw_time(int x,int y,int hour,int min){
         EPD.clearbuffer();
         EPD.fontscale=1;
         EPD.SetFont(FONT24);
-        EPD.DrawUTF(x,y,time);
+        EPD.DrawUTF(x,y+4,time);
         EPD.EPD_Dis_Part(x,x+23,y,y+79,(uint8_t*)EPD.EPDbuffer,1);
         EPD.deepsleep();
     }
@@ -230,6 +230,7 @@ int gui_weather_get_level_speed(int speed){
 }
 void gui_draw_weather_now(int x,int y,weather_now_t weather_now){
     char *buf;
+    unsigned char icon_buf[2];
     char skycon_text[][13] = {"晴","晴","多云","多云","阴","轻度雾霾","中度雾霾","重度雾霾","小雨","中雨","大雨","暴雨","雾","小雪","中雪","大雪","暴雪","浮尘","沙尘","大风"};
     buf = (char*)malloc(32);
     EPD.EPD_init_Part();
@@ -237,12 +238,19 @@ void gui_draw_weather_now(int x,int y,weather_now_t weather_now){
     EPD.fontscale=1;
     EPD.SetFont(FONT32);
     itoa(weather_now.temp,buf,10);
-    EPD.DrawUTF(x+2,y+8,buf);
+    if(weather_now.temp>=0&&weather_now.temp<=9){
+        EPD.DrawUTF(x+2,y+8+16,buf);
+    }else{
+        EPD.DrawUTF(x+2,y+8,buf);
+    }
     EPD.SetFont(FONT16);
-    EPD.DrawUTF(x,y+8+36,"°C");
-    EPD.DrawUTF(x+16,y+8+36,skycon_text[weather_now.weather]);
-    EPD.SetFont(ICON32);//TODO:字体部分缺失
-    EPD.DrawUnicodeChar(x+2,y+120,32,32,(uint8_t*)&weather_now.weather);
+    EPD.DrawUTF(x,y+8+36+4,"°C");
+    EPD.DrawUTF(x+16,y+8+36+4,skycon_text[weather_now.weather]);
+    EPD.SetFont(ICON32);
+    icon_buf[0]=0;
+    icon_buf[1]=weather_now.weather+'a';
+    EPD.DrawUnicodeChar(x+2,y+120,32,32,(uint8_t*)icon_buf);
+
     EPD.SetFont(FONT16);
     
     sprintf(buf,"体感: %d °C",weather_now.temp_apparent);
@@ -252,15 +260,77 @@ void gui_draw_weather_now(int x,int y,weather_now_t weather_now){
     sprintf(buf,"空气质量%s",weather_now.air_quality);
     EPD.DrawUTF(x+40+20,y+8,buf);
     if(gui_get_text_len(buf)>11){
-        sprintf(buf,"%s风%d级",gui_weather_get_direction_degree(weather_now.wind_degree),gui_weather_get_level_speed(weather_now.wind_speed));
-        EPD.DrawUTF(x+40+20+20,y+8,buf);
+        if(gui_weather_get_level_speed(weather_now.wind_speed)==0){
+            EPD.DrawUTF(x+40+20+20,y+8,"无风");
+        }else{
+            sprintf(buf,"%s风%d级",gui_weather_get_direction_degree(weather_now.wind_degree),gui_weather_get_level_speed(weather_now.wind_speed));
+            EPD.DrawUTF(x+40+20+20,y+8,buf);
+        }
     }else{
-        sprintf(buf,"%s风%d级",gui_weather_get_direction_degree(weather_now.wind_degree),gui_weather_get_level_speed(weather_now.wind_speed));
-        EPD.DrawUTF(x+40+20,y+8+88,buf);
+        if(gui_weather_get_level_speed(weather_now.wind_speed)==0){
+            EPD.DrawUTF(x+40+20,y+8+88,"无风");
+        }else{
+            sprintf(buf,"%s风%d级",gui_weather_get_direction_degree(weather_now.wind_degree),gui_weather_get_level_speed(weather_now.wind_speed));
+            EPD.DrawUTF(x+40+20,y+8+88,buf);
+        }
     }
 
     EPD.EPD_Dis_Part(x,x+95,y,y+183,(uint8_t*)EPD.EPDbuffer,1);
     EPD.deepsleep();
     free(buf);
+
+}
+
+void gui_draw_weather_day(int x,int y,weather_t* weather){
+    unsigned char icon_buf[2];
+    char buf[16];
+    signed char min=0,max=0,i=0;
+    EPD.EPD_init_Part();
+    EPD.clearbuffer();
+    EPD.SetFont(FONT16);
+    EPD.DrawUTF(x,4+y,"今天");
+    EPD.DrawUTF(x,4+y+64,"明天");
+    EPD.DrawUTF(x,4+y+128,"后天");
+
+    EPD.SetFont(ICON32);
+    icon_buf[0]=0;
+    for (i = 0; i < 3; i++)
+    {
+        icon_buf[1]=weather[i].weather_day+'a';
+        EPD.DrawUnicodeChar(x+24,4+y+i*64,32,32,icon_buf);
+    }
+    EPD.SetFont(FONT16);
+    for (i = 0; i < 3; i++)
+    {
+        sprintf(buf,"%d°C",weather[i].temp_max);
+        EPD.DrawUTF(x+24+4+32,4+y+i*64,buf);
+        sprintf(buf,"%d°C",weather[i].temp_min);
+        EPD.DrawUTF(x+24+24+8+32+48+4,4+y+i*64,buf);
+    }
+    max = weather[0].temp_max;
+    min = weather[0].temp_min;
+    for (i = 0; i < 3; i++)
+    {
+        if(weather[i].temp_min>max)max = weather[i].temp_min;
+        if(weather[i].temp_max>max)max = weather[i].temp_max;
+        if(weather[i].temp_min<min)min = weather[i].temp_min;
+        if(weather[i].temp_max<min)min = weather[i].temp_max;
+    }
+    debug_print("min:%d,max:%d\n",min,max);
+    for (i = 0; i < 2; i++)
+    {
+        EPD.DrawLine(24+24+8+32+x+(max-weather[i].temp_max)*48/(max-min),4+16+y+i*64,24+24+8+32+x+(max-weather[i+1].temp_max)*48/(max-min),64+4+16+y+i*64);
+    }
+    for (i = 0; i < 2; i++)
+    {
+        debug_print("dis1:%d,dis2:%d\n",(max-weather[i].temp_min),(max-weather[i+1].temp_min));
+        EPD.DrawLine(24+24+8+32+x+(max-weather[i].temp_min)*48/(max-min),4+16+y+i*64,24+24+8+32+x+(max-weather[i+1].temp_min)*48/(max-min),64+4+16+y+i*64);
+    }
+    
+    
+
+    EPD.EPD_Dis_Part(x,x+159,y,y+183,(uint8_t*)EPD.EPDbuffer,1);
+    EPD.deepsleep();
+
 
 }

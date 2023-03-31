@@ -23,5 +23,6 @@ void gui_draw_time(int x,int y,int hour,int min);
 void gui_draw_battery(int x,int y,int battery);
 void gui_draw_hitokoto(int x,int y,char* text);
 void gui_draw_weather_now(int x,int y,weather_now_t weather_now);
+void gui_draw_weather_day(int x,int y,weather_t* weather);
 
 #endif

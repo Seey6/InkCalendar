@@ -334,3 +334,69 @@ void gui_draw_weather_day(int x,int y,weather_t* weather){
 
 
 }
+
+
+void gui_draw_tomato_menu(int x,int y,int choice){
+    EPD.EPD_init_Part();
+    EPD.clearbuffer();
+    EPD.SetFont(FONT32);
+    EPD.fontscale=1;
+    EPD.DrawUTF(x,y+16,"25 Min");
+    EPD.DrawUTF(x+36,y+16,"30 Min");
+    EPD.DrawUTF(x+72,y+16,"45 Min");
+    EPD.DrawUTF(x+108,y+16,"60 Min");
+    EPD.DrawCircle(x+16+36*choice,y+8,4,1);
+    EPD.EPD_Dis_Part(x,x+143,y,y+199,(uint8_t*)EPD.EPDbuffer,1);
+    EPD.deepsleep();
+}
+
+// void gui_draw_ring(int x,int y,int r,int thick,int degree){
+//     int tan[361]={0};
+//     int dis_2 = 0;
+//     int r_20 = (r-thick)*(r-thick);
+//     int r_21 = (r+thick)*(r+thick);
+//     for (size_t i = x-r; i <= x+r; i++)
+//     {
+//         for (size_t j = y-r; j <= y+r; j++)
+//         {
+//             dis_2 = (i-x)*(i-x)+(j-y)*(j-y);
+//             if(dis_2 >= r_20 && dis_2 <= r_21){
+//                 if(degree>=0 && degree < 90 && (x<0 || y<0 || (j-y)*100/(i-x)>tan[degree])){
+//                     //draw
+                    
+                    
+//                 }
+//                 if(degree>=90 && degree <180 && (y<0 || (j-y)*100/(i-x)<tan[degree])){
+
+//                 }
+//                 if(degree>=180 && degree <270 && ((y<0&&x>0)||(j-y)*100/(i-x)<tan[degree])){
+
+//                 }
+//                 if(degree>=270 && degree <360 && ((j-y)*100/(i-x)>tan[degree])){
+
+//                 }
+//             }
+//         }
+        
+//     }
+    
+// }
+
+void gui_draw_tomato_clock(int x,int y,int time){
+    char buf[] ={'0','0',0};
+    EPD.EPD_init_Part();
+    EPD.clearbuffer();
+    EPD.SetFont(FONT70);
+    EPD.fontscale=1;
+
+    // EPD.DrawBox()  
+    
+    if(time<10){
+        itoa(time,buf+1,10);
+    }else{
+        itoa(time,buf,10);
+    }
+    EPD.DrawUTF(x+70-35,y+10,buf);
+    EPD.EPD_Dis_Part(x,x+143,y,y+199,(uint8_t*)EPD.EPDbuffer,1);
+    EPD.deepsleep();
+}

@@ -25,4 +25,8 @@ void gui_draw_hitokoto(int x,int y,char* text);
 void gui_draw_weather_now(int x,int y,weather_now_t weather_now);
 void gui_draw_weather_day(int x,int y,weather_t* weather);
 
+void gui_draw_tomato_menu(int x,int y,int choice);
+void gui_draw_tomato_clock(int x,int y,int time);
+
+
 #endif

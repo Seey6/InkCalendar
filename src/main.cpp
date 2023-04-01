@@ -7,6 +7,7 @@
 #include "device.h"
 
 #include "time.h"
+uint32_t time_buf[4];
 
 void mode_normal(){
   signed long long ts = 0;
@@ -17,13 +18,6 @@ void mode_normal(){
   int battery = 0;
   uint32_t init_flag = 0;
   int32_t sleep_time = 0;
-  uint32_t time_buf[4];
-  time_buf[3] = system_get_time();
-  time_buf[2] = time_buf[3];
-  serial_init();
-  debug_print("init start\n");
-  LittleFS.begin();
-  gui_init(&LittleFS,OPM42);
   device_get_init_finish(&init_flag);
   if(init_flag!=1){
     gui_draw_ui();
@@ -66,18 +60,17 @@ void mode_normal(){
     ts-=(ts%60);
     debug_print("timestamp after reboot:%lld\n",ts);
     time_struct = gmtime((time_t*)&ts);
-    gui_draw_time(4,0,time_struct->tm_hour,time_struct->tm_min);
     
-    if(time_struct->tm_min==0){
-      network_init("tjuwlan");
-      if(RET_OK == network_get_hitokoto(buf)){
-        gui_draw_hitokoto(299-20,0,buf);
-      }
-      if(RET_OK==network_get_weather_now(0,weather_now)){
-        gui_draw_weather_now(8,216,weather_now);
-      }
+    gui_draw_time(4,0,time_struct->tm_hour,time_struct->tm_min);
+    if(time_struct->tm_hour==0 && time_struct->tm_min==0){
+      gui_draw_calendar(80,16,time_struct->tm_mon,time_struct->tm_mday);
     }
-    if(time_struct->tm_hour==0&&time_struct->tm_min==0){
+    
+    if(time_struct->tm_min==0 && time_struct->tm_hour >= 6){
+      network_init("tjuwlan");
+    }
+    if(time_struct->tm_hour==6&&time_struct->tm_min==0){
+      gui_draw_ui();
       gui_draw_calendar(80,16,time_struct->tm_mon,time_struct->tm_mday);
       if(RET_OK == network_get_weather(0,weather,3)){
         gui_draw_weather_day(112,216,weather);
@@ -86,7 +79,13 @@ void mode_normal(){
         gui_draw_battery(4,152,battery);
       }
     }
-    if(time_struct->tm_min==0){
+    if(time_struct->tm_min==0 && time_struct->tm_hour >= 6){
+      if(RET_OK == network_get_hitokoto(buf)){
+        gui_draw_hitokoto(299-20,0,buf);
+      }
+      if(RET_OK==network_get_weather_now(0,weather_now)){
+        gui_draw_weather_now(8,216,weather_now);
+      }
       if(RET_OK == network_get_time(ts)){
         time_buf[3] = system_get_time();
         time_struct = gmtime((time_t*)&ts);
@@ -105,12 +104,56 @@ void mode_normal(){
     }
     device_save_time(ts);
     ESP.deepSleep(sleep_time);
-
   }
+}
+void mode_tomato(){
+  int choice = 0;
+  int time_map[] = {25,30,45,60};
+  debug_print("tomato clock mode\n");
+  gui_draw_tomato_menu(0,0,choice);
+  delay(2000);
+  while (1)
+  {
+    if(digitalRead(5)==0){
+      delay(20);
+      if(digitalRead(5)==0){
+        delay(150);
+        if(digitalRead(5)==0){
+          delay(1000);
+          if(digitalRead(5)==0){
+            break;
+          }else{
+            choice++;
+            if(choice>3)choice=0;
+            gui_draw_tomato_menu(0,0,choice);
+          }
+        }else{
+          choice++;
+          if(choice>3)choice=0;
+          gui_draw_tomato_menu(0,0,choice);
+        }
+
+      }
+    }
+    delay(20);
+  }
+  gui_draw_tomato_clock(0,0,time_map[choice]);
 }
 
 void setup() {
-  mode_normal();
+  time_buf[3] = system_get_time();
+  time_buf[2] = time_buf[3];
+  serial_init();
+  debug_print("init start\n");
+  LittleFS.begin();
+  gui_init(&LittleFS,OPM42);
+  pinMode(5, INPUT_PULLUP);
+  if (digitalRead(5) == 0)
+  {
+    mode_tomato();
+  }else{
+    mode_normal();
+  }
 }
 
 void loop() {

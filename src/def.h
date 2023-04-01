@@ -1,6 +1,6 @@
 #ifndef DEF_H_
 #define DEF_H_
-#define DEBUG_FLAG
+// #define DEBUG_FLAG
 
 #ifdef DEBUG_FLAG
 

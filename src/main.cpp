@@ -40,10 +40,10 @@ void mode_normal(){
       gui_draw_weather_now(8,216,weather_now);
     }
     if(RET_OK == network_get_weather(0,weather,3)){
-      gui_draw_weather_day(112,216,weather);
+      gui_draw_weather_day(92,216,weather);
     }
     if(RET_OK == device_get_battery(battery)){
-      gui_draw_battery(4,152,battery);
+      gui_draw_battery(8,152,battery);
     }
     device_set_init_finish(1);
 
@@ -64,7 +64,7 @@ void mode_normal(){
     debug_print("timestamp after reboot:%lld\n",ts);
     time_struct = gmtime((time_t*)&ts);
     
-    gui_draw_time(4,0,time_struct->tm_hour,time_struct->tm_min);
+    gui_draw_time(8,0,time_struct->tm_hour,time_struct->tm_min);
     if(time_struct->tm_hour==0 && time_struct->tm_min==0){
       gui_draw_calendar(80,16,time_struct->tm_mon,time_struct->tm_mday);
     }
@@ -82,10 +82,10 @@ void mode_normal(){
       gui_draw_ui();
       gui_draw_calendar(80,16,time_struct->tm_mon,time_struct->tm_mday);
       if(RET_OK == network_get_weather(0,weather,3)){
-        gui_draw_weather_day(112,216,weather);
+        gui_draw_weather_day(92,216,weather);
       }
       if(RET_OK == device_get_battery(battery)){
-        gui_draw_battery(4,152,battery);
+        gui_draw_battery(8,152,battery);
       }
     }
     if(time_struct->tm_min==0 && time_struct->tm_hour >= 6){
@@ -98,7 +98,7 @@ void mode_normal(){
       if(RET_OK == network_get_time(ts)){
         time_buf[3] = system_get_time();
         time_struct = gmtime((time_t*)&ts);
-        gui_draw_time(4,0,time_struct->tm_hour,time_struct->tm_min);
+        gui_draw_time(8,0,time_struct->tm_hour,time_struct->tm_min);
       }
       time_buf[0] = system_get_time();
       sleep_time = 60e6 - (ts%60)*1e6 - ((time_buf[0]-time_buf[3]));

@@ -24,6 +24,7 @@ void gui_draw_battery(int x,int y,int battery);
 void gui_draw_hitokoto(int x,int y,char* text);
 void gui_draw_weather_now(int x,int y,weather_now_t weather_now);
 void gui_draw_weather_day(int x,int y,weather_t* weather);
+void gui_draw_weather_alert(int x,int t,weather_t* weather);
 
 void gui_draw_tomato_menu(int x,int y,int choice);
 void gui_draw_tomato_clock(int x,int y,int time,int past);

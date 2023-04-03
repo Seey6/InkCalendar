@@ -166,46 +166,26 @@ void gui_draw_hitokoto(int x,int y,char* buffer){
     EPD.deepsleep();
     // free(buf_multiline);
 }
-char* gui_weather_get_direction_degree(uint16_t degrees){
-    static char dir[16][13] =  { "北", "东北偏北", "东北", "东北偏东", "东", "东南偏东", "东南", "东南偏南", "南",
-            "西南偏南", "西南", "西南偏西", "西", "西北偏西", "西北", "西北偏北" };
-    int index = 0;
-    if (349 <= degrees && degrees <= 360) {
-        index = 0;
-    } else if (0 <= degrees && degrees <= 11) {
-        index = 0;
-    } else if (11 < degrees && degrees <= 33) {
-        index = 1;
-    } else if (33 < degrees && degrees <= 56) {
-        index = 2;
-    } else if (56 < degrees && degrees <= 78) {
-        index = 3;
-    } else if (78 < degrees && degrees <= 101) {
-        index = 4;
-    } else if (101 < degrees && degrees <= 123) {
-        index = 5;
-    } else if (123 < degrees && degrees <= 146) {
-        index = 6;
-    } else if (146 < degrees && degrees <= 168) {
-        index = 7;
-    } else if (168 < degrees && degrees <= 191) {
-        index = 8;
-    } else if (191 < degrees && degrees <= 213) {
-        index = 9;
-    } else if (213 < degrees && degrees <= 236) {
-        index = 10;
-    } else if (236 < degrees && degrees <= 258) {
-        index = 11;
-    } else if (258 < degrees && degrees <= 281) {
-        index = 12;
-    } else if (281 < degrees && degrees <= 303) {
-        index = 13;
-    } else if (303 < degrees && degrees <= 326) {
-        index = 14;
-    } else if (327 < degrees && degrees < 348) {
-        index = 15;
+char* gui_weather_get_direction_degree(uint16_t degree){
+    if(degree>337||degree<=22){
+        return "北";
+    }else if(degree>22&&degree<=67){
+        return "东北";
+    }else if(degree>67&&degree<=112){
+        return "东";
+    }else if(degree>112&&degree<=157){
+        return "东南";
+    }else if(degree>157||degree<=202){
+        return "南";
+    }else if(degree>202||degree<=247){
+        return "西南";
+    }else if(degree>247||degree<=292){
+        return "西";
+    }else if(degree>292||degree<=337){
+        return "西北";
+    }else{
+        return "北";
     }
-    return dir[index];
 }
 int gui_weather_get_level_speed(int speed){
     if(speed <= 1)return 0;
@@ -239,43 +219,48 @@ void gui_draw_weather_now(int x,int y,weather_now_t weather_now){
     EPD.SetFont(FONT32);
     itoa(weather_now.temp,buf,10);
     if(weather_now.temp>=0&&weather_now.temp<=9){
-        EPD.DrawUTF(x+2,y+8+16,buf);
+        EPD.DrawUTF(x+2,y+4+16,buf);
     }else{
-        EPD.DrawUTF(x+2,y+8,buf);
+        EPD.DrawUTF(x+2,y+4,buf);
     }
     EPD.SetFont(FONT16);
-    EPD.DrawUTF(x,y+8+36+4,"°C");
-    EPD.DrawUTF(x+16,y+8+36+4,skycon_text[weather_now.weather]);
+    EPD.DrawUTF(x,y+4+36+4,"°C");
+    EPD.DrawUTF(x+16,y+4+36+4,skycon_text[weather_now.weather]);
     EPD.SetFont(ICON32);
     icon_buf[0]=0;
     icon_buf[1]=weather_now.weather+'a';
-    EPD.DrawUnicodeChar(x+2,y+120,32,32,(uint8_t*)icon_buf);
+    EPD.DrawUnicodeChar(x+2,y+136,32,32,(uint8_t*)icon_buf);
 
     EPD.SetFont(FONT16);
     
     sprintf(buf,"体感: %d °C",weather_now.temp_apparent);
-    EPD.DrawUTF(x+40,y+8,buf);
+    EPD.DrawUTF(x+40,y+4,buf);
     sprintf(buf,"湿度: %d",weather_now.humidity);
-    EPD.DrawUTF(x+40,y+8+88,buf);
-    sprintf(buf,"空气质量%s",weather_now.air_quality);
-    EPD.DrawUTF(x+40+20,y+8,buf);
-    if(gui_get_text_len(buf)>11){
-        if(gui_weather_get_level_speed(weather_now.wind_speed)==0){
-            EPD.DrawUTF(x+40+20+20,y+8,"无风");
-        }else{
-            sprintf(buf,"%s风%d级",gui_weather_get_direction_degree(weather_now.wind_degree),gui_weather_get_level_speed(weather_now.wind_speed));
-            EPD.DrawUTF(x+40+20+20,y+8,buf);
-        }
+    EPD.DrawUTF(x+40,y+4+100,buf);
+    if(strcmp("良",weather_now.air_quality)==0||strcmp("优",weather_now.air_quality)==0){
+        sprintf(buf,"空气质量%s",weather_now.air_quality);
+        EPD.DrawUTF(x+40+20,y+4+100-16,buf);
     }else{
+        strlcpy(buf,weather_now.air_quality,sizeof(buf));
+        EPD.DrawUTF(x+40+20,y+4+100,buf);
+    }
+    // if(gui_get_text_len(buf)>11){
+    //     if(gui_weather_get_level_speed(weather_now.wind_speed)==0){
+    //         EPD.DrawUTF(x+40+20+20,y+8,"无风");
+    //     }else{
+    //         sprintf(buf,"%s风%d级",gui_weather_get_direction_degree(weather_now.wind_degree),gui_weather_get_level_speed(weather_now.wind_speed));
+    //         EPD.DrawUTF(x+40+20+20,y+8,buf);
+    //     }
+    // }else{
         if(gui_weather_get_level_speed(weather_now.wind_speed)==0){
-            EPD.DrawUTF(x+40+20,y+8+88,"无风");
+            EPD.DrawUTF(x+40+20,y+4,"无风");
         }else{
             sprintf(buf,"%s风%d级",gui_weather_get_direction_degree(weather_now.wind_degree),gui_weather_get_level_speed(weather_now.wind_speed));
-            EPD.DrawUTF(x+40+20,y+8+88,buf);
+            EPD.DrawUTF(x+40+20,y+4,buf);
         }
-    }
+    // }
 
-    EPD.EPD_Dis_Part(x,x+95,y,y+183,(uint8_t*)EPD.EPDbuffer,1);
+    EPD.EPD_Dis_Part(x,x+79,y,y+183,(uint8_t*)EPD.EPDbuffer,1);
     EPD.deepsleep();
     free(buf);
 
@@ -283,29 +268,65 @@ void gui_draw_weather_now(int x,int y,weather_now_t weather_now){
 
 void gui_draw_weather_day(int x,int y,weather_t* weather){
     unsigned char icon_buf[2];
-    char buf[16];
+    char buf[40];
     signed char min=0,max=0,i=0;
+
+
+    uint8_t skycon = 0;
+    uint8_t day = 0;
+
+    for (int i = 0; i < 3; i++)
+    {
+        if(weather[i].weather_day>=8 && weather[i].weather_day<=11){
+            day = (day|(1<<i));
+            skycon = (skycon|(1<<0));//display
+            skycon = (skycon|(1<<1));//rain
+        }
+        if(weather[i].weather_day>=13 && weather[i].weather_day<=16){
+            day = (day|(1<<i));
+            skycon = (skycon|(1<<0));//display
+            skycon = (skycon|(1<<2));//snow
+        }
+        if(weather[i].weather_night>=8 && weather[i].weather_night<=11){
+            day = (day|(1<<i));
+            skycon = (skycon|(1<<0));//display
+            skycon = (skycon|(1<<1));//rain
+        }
+        if(weather[i].weather_night>=13 && weather[i].weather_night<=16){
+            day = (day|(1<<i));
+            skycon = (skycon|(1<<0));//display
+            skycon = (skycon|(1<<2));//snow
+        }
+    }
+    
     EPD.EPD_init_Part();
     EPD.clearbuffer();
     EPD.SetFont(FONT16);
-    EPD.DrawUTF(x,4+y,"今天");
-    EPD.DrawUTF(x,4+y+64,"明天");
-    EPD.DrawUTF(x,4+y+128,"后天");
+    EPD.fontscale=1;
+
+    if(skycon&0x1){
+        sprintf(buf,"%s%s%s天有%s%s,记得带伞",(day>>0)&0x1?"今":"",(day>>1)&0x1?"明":"",(day>>2)&0x1?"后":"",(skycon>>1)&0x1?"雨":"",(skycon>>2)&0x1?"雪":"");
+        EPD.DrawUTF(x,y+4,buf);
+    }
+
+    EPD.DrawUTF(x+24,4+y,"今天");
+    EPD.DrawUTF(x+24,4+y+64,"明天");
+    EPD.DrawUTF(x+24,4+y+128,"后天");
 
     EPD.SetFont(ICON32);
     icon_buf[0]=0;
     for (i = 0; i < 3; i++)
     {
         icon_buf[1]=weather[i].weather_day+'a';
-        EPD.DrawUnicodeChar(x+24,4+y+i*64,32,32,icon_buf);
+        EPD.DrawUnicodeChar(x+24+24,4+y+i*64,32,32,icon_buf);
     }
     EPD.SetFont(FONT16);
     for (i = 0; i < 3; i++)
     {
         sprintf(buf,"%d°C",weather[i].temp_max);
-        EPD.DrawUTF(x+24+4+32,4+y+i*64,buf);
+        EPD.DrawUTF(x+24+4+32+24,4+y+i*64,buf);
         sprintf(buf,"%d°C",weather[i].temp_min);
-        EPD.DrawUTF(x+24+24+8+32+48+4,4+y+i*64,buf);
+        EPD.DrawUTF(x+24+24+8+32+48+4+20,4+y+i*64,buf);
     }
     max = weather[0].temp_max;
     min = weather[0].temp_min;
@@ -319,21 +340,22 @@ void gui_draw_weather_day(int x,int y,weather_t* weather){
     debug_print("min:%d,max:%d\n",min,max);
     for (i = 0; i < 2; i++)
     {
-        EPD.DrawLine(24+24+8+32+x+(max-weather[i].temp_max)*48/(max-min),4+16+y+i*64,24+24+8+32+x+(max-weather[i+1].temp_max)*48/(max-min),64+4+16+y+i*64);
+        EPD.DrawLine(24+24+8+32+20+x+(max-weather[i].temp_max)*48/(max-min),4+16+y+i*64,24+24+8+32+20+x+(max-weather[i+1].temp_max)*48/(max-min),64+4+16+y+i*64);
     }
     for (i = 0; i < 2; i++)
     {
         debug_print("dis1:%d,dis2:%d\n",(max-weather[i].temp_min),(max-weather[i+1].temp_min));
-        EPD.DrawLine(24+24+8+32+x+(max-weather[i].temp_min)*48/(max-min),4+16+y+i*64,24+24+8+32+x+(max-weather[i+1].temp_min)*48/(max-min),64+4+16+y+i*64);
+        EPD.DrawLine(24+24+8+32+20+x+(max-weather[i].temp_min)*48/(max-min),4+16+y+i*64,24+24+8+32+20+x+(max-weather[i+1].temp_min)*48/(max-min),64+4+16+y+i*64);
     }
     
     
 
-    EPD.EPD_Dis_Part(x,x+159,y,y+183,(uint8_t*)EPD.EPDbuffer,1);
+    EPD.EPD_Dis_Part(x,x+159+16,y,y+183,(uint8_t*)EPD.EPDbuffer,1);
     EPD.deepsleep();
 
 
 }
+
 
 
 void gui_draw_tomato_menu(int x,int y,int choice){
@@ -391,7 +413,7 @@ void gui_draw_tomato_clock(int x,int y,int time,int past){
 
     // EPD.DrawBox()  
     
-    if(time<10){
+    if(time-past<10){
         itoa(time-past,buf+1,10);
     }else{
         itoa(time-past,buf,10);

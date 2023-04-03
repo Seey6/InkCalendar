@@ -107,7 +107,7 @@ ret network_get_weather(unsigned long city_code,weather_t *weather,int day){
 }
 
 ret network_get_hitokoto(char* buffer){
-    https_client.begin(wifi_client_secure,"https://v1.hitokoto.cn/?c=d&c=f&c=j&encode=text&max_length=24");
+    https_client.begin(wifi_client_secure,"https://v1.hitokoto.cn/?c=d&c=e&c=f&c=g&c=h&c=i&c=j&c=k&c=l&encode=text&max_length=24");
     int http_ret = https_client.GET();
     if(HTTP_CODE_OK==http_ret){
         strcpy(buffer,https_client.getString().c_str());

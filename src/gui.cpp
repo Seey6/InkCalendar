@@ -382,7 +382,7 @@ void gui_draw_tomato_menu(int x,int y,int choice){
     
 // }
 
-void gui_draw_tomato_clock(int x,int y,int time){
+void gui_draw_tomato_clock(int x,int y,int time,int past){
     char buf[] ={'0','0',0};
     EPD.EPD_init_Part();
     EPD.clearbuffer();
@@ -392,11 +392,14 @@ void gui_draw_tomato_clock(int x,int y,int time){
     // EPD.DrawBox()  
     
     if(time<10){
-        itoa(time,buf+1,10);
+        itoa(time-past,buf+1,10);
     }else{
-        itoa(time,buf,10);
+        itoa(time-past,buf,10);
     }
-    EPD.DrawUTF(x+70-35,y+10,buf);
-    EPD.EPD_Dis_Part(x,x+143,y,y+199,(uint8_t*)EPD.EPDbuffer,1);
+    EPD.DrawUTF(x+0,3+y+60,buf);
+    EPD.DrawEmptyBox(x+100,3+y,250,12);
+    EPD.DrawBox(x+100,3+y,(past)*250/time,12);
+
+    EPD.EPD_Dis_Part(x,x+119,y,y+255,(uint8_t*)EPD.EPDbuffer,1);
     EPD.deepsleep();
 }

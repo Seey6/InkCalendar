@@ -44,10 +44,25 @@ ret device_get_time(signed long long *timestamp){
     }
 }
 
-ret device_set_init_finish(){
-    uint32_t buf = 1;
+ret device_set_init_finish(uint32_t flag){
+    uint32_t buf = flag;
     return ESP.rtcUserMemoryWrite(0,&buf,4)?RET_OK:RET_ERROR;
 }
 ret device_get_init_finish(uint32_t *flag){
     return ESP.rtcUserMemoryRead(0,flag,4)?RET_OK:RET_ERROR;
+}
+
+ret device_set_tomato_past(uint32_t past){
+    uint32_t buf = past;
+    return ESP.rtcUserMemoryWrite(2,&buf,4)?RET_OK:RET_ERROR;
+}
+ret device_get_tomato_past(uint32_t *past){
+    return ESP.rtcUserMemoryRead(2,past,4)?RET_OK:RET_ERROR;
+}
+ret device_set_tomato_total(uint32_t min){
+    uint32_t buf = min;
+    return ESP.rtcUserMemoryWrite(3,&buf,4)?RET_OK:RET_ERROR;
+}
+ret device_get_tomato_total(uint32_t *min){
+    return ESP.rtcUserMemoryRead(3,min,4)?RET_OK:RET_ERROR;
 }

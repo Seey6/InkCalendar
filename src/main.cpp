@@ -28,8 +28,8 @@ void mode_normal(){
     if(RET_OK == network_get_time(ts)){
       time_buf[0] = system_get_time();
       time_struct = gmtime((time_t*)&ts);
-      gui_draw_calendar(80,16,time_struct->tm_mon,time_struct->tm_mday);
-      gui_draw_time(4,0,time_struct->tm_hour,time_struct->tm_min);
+      gui_draw_calendar(88,16,time_struct->tm_mon,time_struct->tm_mday);
+      gui_draw_time(8,0,time_struct->tm_hour,time_struct->tm_min);
     }else{
       time_buf[0]=system_get_time();
     }
@@ -66,7 +66,7 @@ void mode_normal(){
     
     gui_draw_time(8,0,time_struct->tm_hour,time_struct->tm_min);
     if(time_struct->tm_hour==0 && time_struct->tm_min==0){
-      gui_draw_calendar(80,16,time_struct->tm_mon,time_struct->tm_mday);
+      gui_draw_calendar(88,16,time_struct->tm_mon,time_struct->tm_mday);
     }
     
     if(time_struct->tm_min==0 && time_struct->tm_hour >= 6){
@@ -80,7 +80,7 @@ void mode_normal(){
     }
     if(time_struct->tm_hour==6&&time_struct->tm_min==0){
       gui_draw_ui();
-      gui_draw_calendar(80,16,time_struct->tm_mon,time_struct->tm_mday);
+      gui_draw_calendar(88,16,time_struct->tm_mon,time_struct->tm_mday);
       if(RET_OK == network_get_weather(0,weather,3)){
         gui_draw_weather_day(92,216,weather);
       }

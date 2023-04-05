@@ -33,7 +33,7 @@ void mode_normal(){
     }else{
       time_buf[0]=system_get_time();
     }
-    if(RET_OK == network_get_hitokoto(buf)){
+    if(RET_OK == network_get_poetry(buf,0)){
       gui_draw_hitokoto(299-20,0,buf);
     }
     if(RET_OK==network_get_weather_now(0,weather_now)){
@@ -89,7 +89,7 @@ void mode_normal(){
       }
     }
     if(time_struct->tm_min==0 && time_struct->tm_hour >= 6){
-      if(RET_OK == network_get_hitokoto(buf)){
+      if(RET_OK == network_get_poetry(buf,0)){
         gui_draw_hitokoto(299-20,0,buf);
       }
       if(RET_OK==network_get_weather_now(0,weather_now)){

@@ -120,6 +120,24 @@ ret network_get_hitokoto(char* buffer){
         return RET_ERROR;
     }
 }
+ret network_get_poetry(char* content,char* title){
+    http_client.begin(wifi_client,"http://v1.jinrishici.com/all.json");
+    if(HTTP_CODE_OK==http_client.GET()){
+        DeserializationError error = deserializeJson(doc,http_client.getString());
+        if(error){
+            debug_print("poetry api json error\n");
+            return RET_ERROR;
+        }
+        strlcpy(content,doc["content"],80);
+        if(title!=0){
+            strlcpy(title,doc["origin"],80);
+        }
+        http_client.end();
+        return RET_OK;
+    }else{
+        return RET_ERROR;
+    }
+}
 ret network_get_weather_now(char* pos,weather_now_t& weather_now){
     char buf[32];
     http_client.begin(wifi_client,"http://api.caiyunapp.com/v2.6/TAkhjf8d1nlSlspN/117.1735,39.1107/realtime");

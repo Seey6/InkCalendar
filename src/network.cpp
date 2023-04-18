@@ -159,7 +159,7 @@ ret network_get_weather_now(char* pos,weather_now_t& weather_now){
         weather_now.wind_degree = doc["result"]["realtime"]["wind"]["direction"].as<float>();
         weather_now.wind_speed = doc["result"]["realtime"]["wind"]["speed"].as<float>();
         weather_now.temp_apparent = doc["result"]["realtime"]["apparent_temperature"].as<float>();
-        strlcpy(weather_now.air_quality,doc["result"]["realtime"]["air_quality"]["description"]["chn"],sizeof(weather_now.air_quality));
+        strlcpy(weather_now.air_quality,doc["result"]["realtime"]["air_quality"]["description"]["usa"],sizeof(weather_now.air_quality));
         debug_print("weather_now weather:%d,air_quality:%s,temp:%d,temp_apparent:%d,humidity:%d,wind_speed:%d,wind_degree:%d\n",weather_now.weather,weather_now.air_quality,weather_now.temp,weather_now.temp_apparent,weather_now.humidity,weather_now.wind_speed,weather_now.wind_degree);
         http_client.end();
         return RET_OK;

@@ -78,7 +78,7 @@ void gui_draw_text(int x,int y,long number){
 void gui_draw_calendar(int x,int y,int month,int day){
     char day_buf[3]={'0'};
     char month_map[][10] = {
-        "January","February","March","April","May","June","July","August","September","October","November","December"
+        "","January","February","March","April","May","June","July","August","September","October","November","December"
     };
     uint8_t month_offset[12] = {
         24,16,32,40,48,40,48,24,0,16,8,8
